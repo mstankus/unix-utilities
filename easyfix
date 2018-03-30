@@ -1,0 +1,87 @@
+#!/usr/bin/ruby
+
+dir = File.expand_path(File.dirname(__FILE__));
+require "#{dir}/romanCounter"
+
+require 'pp'
+require 'fileutils'
+
+counter = RomanCounter.new(STDERR);
+
+def if_exists_then_remove(ent,str)
+  if File.exists?(str) 
+    FileUtils.rm str;
+    ent = ent - [str];
+  end
+  return ent;
+end
+
+def tex_smart_prune(ent,y)
+  thetex = ent.select { |base| base.size > 4 and base[-4..-1]==".tex"};
+  thetex.each { |base|
+    sub = base[0..-5]
+    ent = if_exists_then_remove(ent,"#{y}/#{sub}.idx") 
+    ent = if_exists_then_remove(ent,"#{y}/#{sub}.log") 
+    ent = if_exists_then_remove(ent,"#{y}/#{sub}.toc") 
+    ent = if_exists_then_remove(ent,"#{y}/#{sub}.aux") 
+  }
+  return ent;
+end
+
+def rm_bad(ent,dir,fn)
+  if ent.include?(fn) then
+    FileUtils.rm_r "#{dir}/#{fn}"
+    ent = ent - [fn];
+  end
+  return ent;
+end
+
+def lonely_file_delete(y,ent,strs)
+   strs.each { |str|
+    if ent==[str] then
+      FileUtils.rm_r "#{y}/#{ent.at(0)}"
+      ent = [];
+      break;
+    end
+   }
+   return ent;
+end
+
+def modify_the_directory(y)
+      #	The true's are there so that it is easier to comment out lines.
+  val = true and
+        (! y.include?(".Trash")) and 
+        (! y.include?(".git")) and 
+        (! y.include?("\/Library")) and 
+        File.exists?(y) and 
+        File.directory?(y) and
+	true;
+
+  if val then
+    ent = Dir.entries(y)-[".",".."];
+      # Get rid of temporary files created by LaTeX
+    ent = tex_smart_prune(ent,y);
+      # Get rid of temporary files created by macOS
+    ent = rm_bad(ent,y,".DS_Store");
+      # Get rid of temporary files created by ex. I don't use ex.
+    ent = rm_bad(ent,y,".exrc");
+    if(ent.size==1) then
+      ent = lonely_file_delete(y,ent,[".cvsignore","Makefile","CVS"]);
+    end
+    if ent.empty?
+        # Warn the user as a progress report and if something goes bad, 
+        # let them stop it quickly.
+      STDERR.puts "Going to delete the directory #{y}";
+      STDERR.puts Dir.entries(y);
+      Dir.rmdir y;
+      modify_the_directory(File.dirname(y));
+    end
+  end
+end
+
+STDIN.each { |x|
+    # Provide a counter so that the user does not get too bored.
+  counter.tick();  
+  y = x.chomp();
+  modify_the_directory(y);
+}

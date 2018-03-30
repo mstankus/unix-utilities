@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+
+ARGF.each { |x|
+  sz = x.size;
+  if sz > 240 then 
+    puts "#{x.size}:#{x}";
+  end
+};

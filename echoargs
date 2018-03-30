@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+puts "The #{ARGV.size} arguments provided to the command echoargs are as follows.";
+
+i=0;
+until ARGV.empty? do 
+  i = i + 1;
+  item = ARGV.shift;
+  puts "#{i}:#{item}";
+end

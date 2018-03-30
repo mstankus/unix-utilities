@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require File.dirname(__FILE__)+'/fancy-cp'
+
+d = fancy_date(Date.today) 
+
+ARGV.each { |item|
+  puts "mv \"#{item}\" \"#{d}-#{item}\"";
+}

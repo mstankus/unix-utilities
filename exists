@@ -1,0 +1,83 @@
+#!/usr/bin/ruby
+
+dir = File.expand_path(File.dirname(__FILE__));
+require "#{dir}/romanCounter"
+
+$counter = RomanCounter.new(STDERR);
+$caseInsensitive = false;
+
+$nothave = [];
+$base_nothave = [];
+$dir_nothave = [];
+
+$have = [];
+$base_have = [];
+$dir_have = [];
+
+$base_equal = [];
+$base_notequal = [];
+
+while (not ARGV.empty?) do
+  item = ARGV.shift;
+  if item=="-i" then
+    $case_insensitive = true;
+  elsif item=="-bequal" then
+    $base_equal << ARGV.shift;
+  elsif item=="-bhave" or item=="-bhas" then
+    $base_have << ARGV.shift;
+  elsif item=="-bnotequal" then
+    $base_notequal << ARGV.shift;
+  elsif item=="-bv" then
+    $base_nothave << ARGV.shift; 
+  elsif item=="-dhave" or item=="-dhas" then
+    $dir_have << ARGV.shift;
+  elsif item=="-dv" then
+    $dir_nothave << ARGV.shift; 
+  elsif item=="-have" or item=="-has" then
+    $have << ARGV.shift;
+  elsif item=="-v" then
+    $nothave << ARGV.shift; 
+  else
+    STDERR.puts "exists does not understand \"#{item}\"";
+    exit -1;
+  end
+end
+
+def includes(str,substr)
+  if $case_insensitive  then
+     STDERR.puts "Have to fix case insensititiy within exists";
+     return str.include?(substr);    
+  end
+  return str.include?(substr);    
+end
+
+STDIN.each { |x|
+  fn = x.chomp;
+  notdone = true;
+  base = File.basename(fn);
+  dir = File.dirname(fn);
+  if (not $base_equal.empty?) then
+    notdone = (not base==$base_equal.first);
+  end
+  next if not notdone;
+  if (not $base_equal.empty?) then
+    notdone = base==$base_notequal.first;
+  end
+  next if not notdone;
+  $nothave.each { |x| notdone = notdone && (not includes(fn,x));}
+  next if not notdone;
+  $have.each { |x| notdone = notdone && includes(fn,x);}
+  next if not notdone;
+  $base_nothave.each { |x| notdone = notdone && (not includes(base,x));}
+  next if not notdone;
+  $base_have.each { |x| notdone = notdone && includes(base,x);}
+  next if not notdone;
+  $dir_nothave.each { |x| notdone = notdone && (not includes(dir,x));}
+  next if not notdone;
+  $dir_have.each { |x| notdone = notdone && includes(dir,x);}
+  next if not notdone;
+  next if (not File.exists?(fn));
+
+  $counter.tick;
+  puts fn;
+}

@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+
+def investigate(x)
+  if File.directory?(x) then
+    ent = Dir.entries(x) - [".","..",".git"];
+    allFiles = true;
+    ent.each { |basename|
+      fn = x + "/" + basename;
+      if File.directory?(fn) then
+        allFiles = false;
+        investigate(fn);
+      elsif allFiles then
+        allFiles = File.file?( x + "/" + basename);
+      end
+    }
+    if allFiles then
+      puts x;
+    end
+  end
+end
+
+STDIN.each_line  { |x|
+  investigate(x.chomp);
+}

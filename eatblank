@@ -1,0 +1,7 @@
+#!/usr/bin/ruby
+
+STDIN.each { |x|
+  y = x.chomp;
+  z = y.strip;
+  puts y if z.size > 0;
+}

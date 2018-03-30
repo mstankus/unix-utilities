@@ -1,0 +1,11 @@
+
+if ARGV.size == 2 then
+  fn1 = ARGV.shift;
+  fn2 = ARGV.shift;
+  if (File.mtime(fn1) <=> File.mtime(fn2))==1) then
+    puts "cp #{fn1} #{fn2}"
+    `cp #{fn1} #{fn2}`
+  end
+else
+  STDERR.puts "copyif expects 2 arguments"
+end

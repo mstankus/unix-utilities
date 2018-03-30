@@ -1,0 +1,147 @@
+#!/usr/bin/env ruby 
+#
+require 'pp'
+require 'tempfile'
+here = File.expand_path(File.dirname(__FILE__));
+require "#{here}/romanCounter"
+require "#{here}/Entry"
+require "#{here}/block-to-blocks"
+require "#{here}/blocks-to-blocks"
+require "#{here}/read-blocks"
+require "#{here}/two-arguments"
+require "#{here}/transform"
+
+$to_remove = [];
+$vstr = "";
+$blks = read_block_by_filename($stdin.readlines.map { |x| x.chomp }) 
+$sz = $blks[0].size;
+$counter = RomanCounter.new(STDERR);
+
+aList = ARGV.dup;
+if aList.empty? then
+  aList  = ["-n","-x","-s","-x","-p"];
+  aList  = ["-n","-s","-p"];
+end
+
+if aList.include?("-rm") || aList.include?("-ix") then
+  if not aList.include?("-change") then
+    aList << "-change"
+  end
+end
+
+if !aList.include?("-p") then
+  aList << "-p";
+end
+
+#
+# Create a list of functions which take one argument.
+#
+fncs = [];
+change = Hash.new { |h,k| h[k] = [];}
+
+while !aList.empty? do
+  opt = aList.shift;
+  if false
+  elsif (opt=="-d") 
+    fncs << method(:silent_diff_on_block);
+  elsif (opt=="-f") 
+    fncs << method(:shrink_to_first);
+  elsif (opt=="-l") 
+    fncs << method(:shrink_to_last);
+  elsif (opt=="-n") 
+    fncs << method(:block_by_filename);
+  elsif (opt=="-p") 
+    fncs << method(:print_block);
+  elsif (opt=="-s") 
+    fncs << method(:block_by_size);
+  elsif (opt=="-no-str") 
+    opt = aList.shift;
+    fncs << create_not_have_string(opt);
+  elsif (opt=="-str") 
+    opt = aList.shift;
+    fncs << create_has_string(opt);
+  elsif (opt=="-v") 
+    fncs << method(:visual_diff_on_block);
+  elsif (opt=="-vstr") 
+    vstr = aList.shift;
+  elsif (opt=="-x") 
+    fncs << method(:exclude_singleton);
+  elsif (opt=="-mxfn") 
+    fncs << method(:mixed_filenames);
+  elsif (opt=="-ix") 
+    opt = aList.shift;
+    change["ix"] << opt;
+  elsif (opt=="-rm") 
+    opt = aList.shift;
+    change["rm"] << opt;
+  elsif (opt=="-change") 
+    fncs << create_change(change);
+  elsif (opt=="-exists") 
+    fncs << method(:block_by_exists);
+  elsif (opt=="-ext") 
+    fncs << method(:block_by_extension);
+  end
+end
+
+#
+# Process the list of functions, but process intermediate blocks 
+# as quickly as possible.
+# Not tested.
+
+def parallel_process(fncs,blks)
+  counter = 0;
+  pairs = blks.map { |blk| [ blk, fncs] }
+  ans = [];
+  while ! pairs.empty? do 
+    counter = counter + 1;
+    if counter==10 then
+      #STDERR.puts pairs.size;
+      counter = 0;
+    end
+    pr = pairs.shift;
+    #pp [pr.last.size,(pr.first)[0..4].map { |ent| ent.get_str} ];
+    blk  = pr.first;
+    lessfncs = pr.last.dup;
+    fnc = lessfncs.shift;
+#    STDERR.puts "About to call with #{transform(blk)}";
+    addit = fnc.call(blk);
+    #puts "addit:#{addit.size}";
+    #puts lessfncs.size;
+    if lessfncs.empty? then
+      ans = ans + addit;
+    else
+      pairs = addit.map { |blk| [ blk, lessfncs ] } + pairs;
+    end
+  end
+  return ans;
+end
+
+#
+# Process the a list of functions which take one argument.
+# 
+def non_parallel_process(fncs,blks)
+  fncs.each { |fnc|
+    STDERR.puts  "Option:#{fnc}";
+    STDERR.puts  "#{$sz} to do";
+    $sz = 0;
+    puts "## #{fnc}";
+    newblks = [];
+    $blks.each { |blk|
+      addit = fnc.call(blk);
+      addit.each { |aBlock| $sz = $sz + aBlock.size;}
+      newblks = newblks + addit;
+    }
+    $blks = newblks;
+  }
+end
+
+#$blks = non_parallel_process(fncs,$blks)
+$blks = parallel_process(fncs,$blks)
+
+if not $to_remove.empty? then
+  STDERR.puts  "Cleaning up!";
+  $to_remove.each { |fn|
+    cmd = "rm #{fn.chomp}";
+    puts cmd;
+  }
+end

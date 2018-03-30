@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+STDIN.each {|x|
+  puts x.chomp.strip;
+}

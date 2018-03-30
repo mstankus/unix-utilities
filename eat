@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+num = ARGV.shift.to_i;
+
+i=0;
+STDIN.each {|x|
+  if i < num then
+    i = i + 1;
+  else
+    puts x.chomp;
+  end
+}

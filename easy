@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+if not ARGV.empty? then
+  ARGV.each { |fn| 
+    `find #{fn} -type d | easyfix`
+  }
+else
+  `find . -type d | easyfix`
+end

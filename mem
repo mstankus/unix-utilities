@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+
+FILE = ENV["HOME"] + "/.last_file";
+
+args = ARGV.dup;
+
+cmd = args.shift;
+
+if args.empty? then
+  if(File.exists?(FILE)) then 
+    str = File.open(FILE,"r") {|f| f.readline}
+    `#{cmd} #{str}`
+  else 
+   STDERR.puts "The command";
+   STDERR.puts "";
+   STDERR.puts "    mem #{cmd} #{args.join(" ")}";
+   STDERR.puts "";
+   STDERR.puts "does not execute any command because no .last file exists in the home directory.";
+  end
+else
+  File.open(FILE,"w") { |f| f.puts args.last; }
+  list = args.join(" ");
+  `#{cmd} #{list}` 
+end
+

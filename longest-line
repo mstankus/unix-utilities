@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+large = 0;
+aList = [];
+
+ARGF.each { |x|
+  sz = x.size;
+  if large  < sz then
+    large = sz;
+    aList = [x];
+  elsif large==sz 
+    aList << x;
+  end
+};
+
+puts large;
+pp aList;

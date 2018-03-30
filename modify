@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+
+require 'pp'
+dir = File.expand_path(File.dirname(__FILE__))
+require "#{dir}/romanCounter"
+require "#{dir}/modifySubroutines";
+
+counter1 = RomanCounter.new(STDERR);
+$count = 0;
+$hash = {};
+$hash["max-line-size"] = 0;
+
+def construct_a_string(line,data_structure)
+  the_list = [];
+  while not data_structure.empty? do 
+    item = data_structure.shift;
+    if item.is_a?(Array) then
+      item = construct_a_string(line,item);
+    end
+    if not item.is_a?(String) then 
+      STDERR.puts "Expected a string, but did not receive one! Received ";
+      STDERR.puts "Received the following:" 
+      STDERR.pp item;
+    end
+    the_list << item;
+  end
+  result = "";
+  while not the_list.empty? do
+    cmdname = the_list.shift; 
+    cmd = $command_hash[cmdname]; 
+    if not cmd.nil? then
+      pair     = __send__(cmd,result,the_list,line);
+      result   = pair[0];
+      the_list = pair[1];
+    else
+      puts "Argument #{cmdname} not understood!";
+      exit;
+    end
+  end
+  return result;
+end
+
+def build_structure(args)
+  remaining = args;
+  arg = args.shift;
+  remaining = args;
+  if arg!="--begin" then
+    result = arg;
+  else
+    result = [];
+    while (not remaining.empty?) and args[0]!="--end" do 
+      pair = build_structure(args); 
+      item = pair[0];
+      remaining = pair[1];
+      result << item;
+    end
+    if args[0]=="--end" then
+      args.shift;
+    end
+  end
+  return [result,remaining];
+end
+
+ins = [STDIN];
+options = ["--begin"];
+
+while (not ARGV.empty?) do
+  arg = ARGV.shift;
+  if arg=="-f" then 
+    fn = ARGV.shift;
+    ins << File.open(fn);
+  else
+    options << arg;
+  end
+end
+options << "--end";
+#puts "options:";
+#pp options;
+
+data_structure = build_structure(options);
+data_structure = data_structure[0];
+
+#puts "data_structure:";
+#pp data_structure;
+
+while (not ins[0].eof?) do
+  remaining = options.dup;
+  lines = []
+  ins.each { |input|
+    lines << input.readline.chomp;
+  }
+  $count = $count + 1;
+  theline = construct_a_string(lines[0],data_structure.dup);
+  $hash["max-line-size"] = [$hash["max-line-size"],theline.length].max;
+  puts theline;
+  counter1.tick;
+end
+STDERR.puts "Maximum line length: #{$hash["max-line-size"]}";

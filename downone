@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+aList = [];
+
+FILE = ENV['HOME'] + "/the.find";
+
+File.open(FILE,"r") { |io|
+  while(line=io.gets) do
+    line = line.chomp;
+    if File.directory?(line) then
+      ents = Dir.entries(line) - [".",".."];
+      ents.each { |ent| aList.push(File.join(line,ent));}
+    end
+  end
+}
+
+File.open(FILE,"w") { |io|
+  aList.each { |x| io.puts x;}
+}
+
+puts `wc -l #{FILE}`
