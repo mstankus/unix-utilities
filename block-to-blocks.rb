@@ -1,4 +1,4 @@
-#
+
 # Before reading, it is a slight oversimplification, but you
 # can think the class Entry as holding a string which holds
 # a filename.
@@ -80,6 +80,22 @@ def block_by_extension(blk)
     end
   }
   return aHash.values;
+end
+
+def block_by_must(blk)
+  blocks = [];
+  if blk.any? { |fn| fn.has_string("OneDrive") } then
+   blocks = [blk];
+  end
+  return blocks;
+end
+
+def block_by_not_must(blk)
+  blocks = [];
+  if blk.any? { |fn| !fn.has_string("OneDrive") } then
+   blocks = [blk];
+  end
+  return blocks;
 end
 
 #

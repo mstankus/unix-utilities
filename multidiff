@@ -80,6 +80,10 @@ while !aList.empty? do
     fncs << method(:block_by_exists);
   elsif (opt=="-ext") 
     fncs << method(:block_by_extension);
+  elsif (opt=="-must") 
+    fncs << method(:block_by_must);
+  elsif (opt=="-not-must") 
+    fncs << method(:block_by_not_must);
   end
 end
 
