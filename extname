@@ -1,0 +1,5 @@
+
+STDIN.each { |x|
+  puts File.extname(x.chomp);
+}
+
