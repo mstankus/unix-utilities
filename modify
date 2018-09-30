@@ -7,6 +7,9 @@ require "#{dir}/modifySubroutines";
 
 counter1 = RomanCounter.new(STDERR);
 $count = 0;
+$day   = nil;
+$month = nil;
+$year  = nil;
 $hash = {};
 $hash["max-line-size"] = 0;
 

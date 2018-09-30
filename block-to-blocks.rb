@@ -84,7 +84,8 @@ end
 
 def block_by_must(blk)
   blocks = [];
-  if blk.any? { |fn| fn.has_string("OneDrive") } then
+  str = $change["must"][0]; 
+  if blk.any? { |fn| fn.has_string(str) } then
    blocks = [blk];
   end
   return blocks;
@@ -92,7 +93,8 @@ end
 
 def block_by_not_must(blk)
   blocks = [];
-  if blk.any? { |fn| !fn.has_string("OneDrive") } then
+  str = $change["must-note"][0]; 
+  if blk.any? { |fn| !fn.has_string(str) } then
    blocks = [blk];
   end
   return blocks;
