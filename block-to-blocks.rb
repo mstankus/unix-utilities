@@ -84,7 +84,7 @@ end
 
 def block_by_must(blk)
   blocks = [];
-  if blk.any? { |fn| fn.has_string("OneDrive") } then
+  if blk.any? { |fn| fn.has_string("Desktop") } then
    blocks = [blk];
   end
   return blocks;
@@ -92,7 +92,7 @@ end
 
 def block_by_not_must(blk)
   blocks = [];
-  if blk.any? { |fn| !fn.has_string("OneDrive") } then
+  if blk.any? { |fn| !fn.has_string("Desktop") } then
    blocks = [blk];
   end
   return blocks;
