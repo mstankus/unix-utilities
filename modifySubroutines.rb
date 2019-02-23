@@ -240,7 +240,7 @@ $command_hash["-padleft"]               = :my_pad_left;
 def my_pad_right(result,the_list,line)
   cnt = the_list.shift.to_i;
   while result.length<cnt do
-    result = result + ' ';
+    result << ' ';
   end
   return [result,the_list];
 end
@@ -282,7 +282,7 @@ $command_hash["--upper"]             = :my_uppercaseletter;
 ########################## 
 
 def my_latexnewline(result,the_list,line)
-  result =result + "\\\\";
+  result << "\\\\";
   return [result,the_list];
 end
 
@@ -291,10 +291,67 @@ $command_hash["--latex-newline"]     = :my_latexnewline;
 ########################## 
 
 def my_backslash(result,the_list,line)
-  result = result + "\\";
+  result << "\\";
   return [result,the_list];
 end
 
 $command_hash["--backslash"]         = :my_backslash;
+
+########################## 
+
+def my_yearmonthday(result,the_list,line)
+  ymd = line.match('([a-z]*)(\d{8})');
+  if ymd.nil? then
+    STDERR.puts "no 8 digit year, month, day figured out";
+  else
+    $year  = ymd[2][0..3];
+    $month = ymd[2][4..5];
+    $day   = ymd[2][6..7];
+    if false then
+      STDERR.puts "year  is #{$year}"
+      STDERR.puts "month is #{$month}"
+      STDERR.puts "day   is #{$day}"
+    end
+  end
+  return [result,the_list];
+end
+
+$command_hash["--ymd"]         = :my_yearmonthday;
+
+########################## 
+
+def my_year(result,the_list,line)
+  if $year.nil? then
+    STDERR.puts "year not set!";
+  end
+  result << $year;
+  return [result,the_list];
+end
+
+$command_hash["--year"]         = :my_year;
+
+########################## 
+
+def my_month(result,the_list,line)
+  if $month.nil? then
+    STDERR.puts "month not set!";
+  end
+  result << $month;
+  return [result,the_list];
+end
+
+$command_hash["--month"]         = :my_month;
+
+########################## 
+
+def my_day(result,the_list,line)
+  if $day.nil? then
+    STDERR.puts "day not set!";
+  end
+  result << $day;
+  return [result,the_list];
+end
+
+$command_hash["--day"]         = :my_day;
 
 ########################## 

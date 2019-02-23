@@ -36,8 +36,8 @@ end
 #
 # Create a list of functions which take one argument.
 #
-fncs = [];
-change = Hash.new { |h,k| h[k] = [];}
+fncs = []
+$change = Hash.new { |h,k| h[k] = [];}
 
 while !aList.empty? do
   opt = aList.shift;
@@ -70,19 +70,23 @@ while !aList.empty? do
     fncs << method(:mixed_filenames);
   elsif (opt=="-ix") 
     opt = aList.shift;
-    change["ix"] << opt;
+    $change["ix"] << opt;
   elsif (opt=="-rm") 
     opt = aList.shift;
-    change["rm"] << opt;
+    $change["rm"] << opt;
   elsif (opt=="-change") 
-    fncs << create_change(change);
+    fncs << create_change($change);
   elsif (opt=="-exists") 
     fncs << method(:block_by_exists);
   elsif (opt=="-ext") 
     fncs << method(:block_by_extension);
   elsif (opt=="-must") 
+    opt = aList.shift;
+    $change["must"] << opt.dup;
     fncs << method(:block_by_must);
   elsif (opt=="-not-must") 
+    opt = aList.shift;
+    $change["not-must"] << opt.dup;
     fncs << method(:block_by_not_must);
   end
 end

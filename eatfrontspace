@@ -1,0 +1,12 @@
+#!/usr/bin/ruby
+
+STDIN.each {|x|
+  y = x.chomp;
+  sz = y.length ;
+  i = 0;
+  while i < sz and (y[i]==' ' or y[i]=='\t') do
+    i = i + 1;
+  end
+  y = y[i..-1];
+  puts y;
+}
