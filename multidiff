@@ -88,6 +88,9 @@ while !aList.empty? do
     opt = aList.shift;
     $change["not-must"] << opt.dup;
     fncs << method(:block_by_not_must);
+  else 
+    STDERR.puts "Could not understand #{opt}";
+    exit(222);
   end
 end
 

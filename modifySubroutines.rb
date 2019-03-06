@@ -53,6 +53,20 @@ $command_hash["--cut-front"]         = :my_cut_front;
 
 ########################## 
 
+def my_date(result,the_list,line)
+ place = line.index(/[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]/);
+  if place.nil? then
+    result = result + "NO-DATE";
+  else
+    result = result + line[place..(place+9)];
+  end
+  return [result,the_list];
+end
+
+$command_hash["--date"]            = :my_date;
+
+########################## 
+
 def my_directory(result,the_list,line)
   result << File.dirname(line);
   return [result,the_list];
@@ -60,15 +74,6 @@ end
 
 $command_hash["-d"]                 = :my_directory;
 $command_hash["--directory"]         = :my_directory;
-
-########################## 
-
-def my_date(result,the_list,line)
-  result << Time.now.to_s;
-  return [result,the_list];
-end
-
-$command_hash["--date"]              = :my_date;
 
 ########################## 
 
@@ -267,7 +272,7 @@ def my_replace(result,the_list,line)
 end
 
 $command_hash["-r"]                  = :my_replace;
-$command_hash["-relace"]             = :my_replace;
+$command_hash["-replace"]             = :my_replace;
 
 ########################## 
 
@@ -296,6 +301,49 @@ def my_backslash(result,the_list,line)
 end
 
 $command_hash["--backslash"]         = :my_backslash;
+
+########################## 
+
+def my_run(result,the_list,line)
+  cmd = the_list.shift;
+  result = `#{cmd} \"#{line}\"`;
+  return [result,the_list];
+end
+
+$command_hash["--run"]         = :my_run;
+
+########################## 
+
+def my_gsub(result,the_list,line)
+  thing = the_list;
+  before = thing.shift;
+  #STDERR.puts "BEFORE:#{before}";
+  after = thing.shift;
+  #STDERR.puts "AFTER :#{after}";
+  result << line.gsub(before,after);
+  #STDERR.puts "RESULT:#{result}";
+  return [result,thing];
+end
+
+$command_hash["--gsub"]         = :my_gsub;
+
+########################## 
+
+def my_lastgsub(result,the_list,line)
+  thing = the_list;
+  before = thing.shift;
+  #STDERR.puts "BEFORE:#{before}";
+  after = thing.shift;
+  #STDERR.puts "AFTER :#{after}";
+  altered = line.reverse.sub(before.reverse, after.reverse).reverse;
+  result << altered;
+  #STDERR.puts "RESULT:#{result}";
+  return [result,thing];
+end
+
+$command_hash["--last-gsub"]         = :my_lastgsub;
+
+########################## 
 
 ########################## 
 
