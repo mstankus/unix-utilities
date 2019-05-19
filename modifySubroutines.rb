@@ -43,6 +43,15 @@ $command_hash["--count"]             = :my_count;
 
 ########################## 
 
+def my_alphabet(result,the_list,line)
+  result = result + (64+$count).chr;
+  return [result,the_list];
+end
+
+$command_hash["--alphabet"]             = :my_alphabet;
+
+########################## 
+
 def my_cut_front(result,the_list,line)
   cnt = the_list.shift.to_i;
   result = result[cnt..-1];
