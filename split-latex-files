@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby 
+
+fn = ARGV[0];
+
+if not File.exists?(fn) then
+  STDERR.puts "The file #{fn} does not exist!";
+  exit(0);
+end
+
+if File.directory?(fn) then
+  STDERR.puts "The file #{fn} is a directory!";
+  exit(0);
+end
+
+lines = IO.readlines(fn);
+sz = lines.size;
+
+dir = "FUN";
+files = Hash.new { |h,k| h[k] = [] };
+
+i = 0;
+found_start = false;
+current_lines_in_outside_file = [];
+current_lines_in_file = [];
+sz = lines.size;
+outside_file_name = "";
+while i < sz do
+  # Grab the file name
+  a_line = lines[i].chomp;
+  if found_start then
+    if a_line.start_with?("%%%BACK:") then
+      found_start = false;
+      files[outside_file_name] =  current_lines_in_outside_file;
+      current_lines_in_file << "%//%%%FRONT:#{outside_file_name}";
+      current_lines_in_file << "\\input{#{outside_file_name}}";
+      current_lines_in_file << "%//%%%BACK:#{outside_file_name}";
+    else
+      current_lines_in_outside_file << a_line;
+    end
+  elsif a_line.start_with?("%%%FRONT:") then
+    found_start = true;
+    outside_file_name = a_line[9..];
+    current_lines_in_outside_file = [];
+  else
+    current_lines_in_file << a_line;
+  end
+  i = i + 1;
+end
+
+puts "CURRENT LINES IN FILE:";
+current_lines_in_file.each { |x| puts x;}
+puts "OUTSIDE FILES:";
+files.each_pair { |key,value|
+  puts "CREATED FILE: #{dir}/#{key}";
+  value.each { |x| puts x; }
+}
