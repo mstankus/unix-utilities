@@ -53,6 +53,20 @@ def block_by_size(blk)
 end
 
 #
+# Remove files which do not exist
+#
+def block_by_exists(blk)
+  answer_block = [];
+  blk.each { |ent|
+    fn = ent.get_str;
+    if File.exists?(fn) then 
+      answer_block << fn;
+    end
+  }
+  return [ answer_block ];
+end
+
+#
 # If two files have different basenames, then treat them as different.
 #
 def block_by_filename(blk)
