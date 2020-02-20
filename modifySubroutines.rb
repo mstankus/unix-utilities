@@ -14,6 +14,17 @@ $command_hash["--append"]            = :my_append;
 
 ########################## 
 
+def my_cat_original(result,the_list,line)
+  File.open(line).each { |aLine|
+   result = result + aLine;  
+  }
+  return [result,the_list];
+end
+
+$command_hash["--cato"]              = :my_cat_original;
+
+########################## 
+
 def my_basename(result,the_list,line)
   result = result + File.basename(line);
   return [result,the_list];
